@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CollabSpace - Real-time Collaboration Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #2c3e50;
+    --accent-color: #e74c3c;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f7fa;
+    --bg-dark: #2c3e50;
+    --text-primary: #333333;
+    --text-secondary: #7f8c8d;
+    --border-color: #e1e4e8;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Header Styles */
+.main-header {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.logo i {
+    font-size: 1.5rem;
+}
+
+.room-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.room-id {
+    font-family: monospace;
+    color: var(--text-secondary);
+}
+
+.copy-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.3s;
+}
+
+.copy-btn:hover {
+    color: var(--primary-color);
+}
+
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.view-toggles {
+    display: flex;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    padding: 0.25rem;
+    border-radius: 10px;
+}
+
+.view-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.view-btn:hover {
+    background: white;
+    color: var(--primary-color);
+}
+
+.view-btn.active {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: var(--shadow);
+}
+
+.view-btn i {
+    font-size: 1rem;
+}
+
+.view-btn span {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-leave {
+    padding: 0.5rem 1.5rem;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-leave:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+
+/* Main Container */
+.main-container {
+    display: flex;
+    height: calc(100vh - 73px);
+    position: relative;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 320px;
+    background: white;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s;
+}
+
+.sidebar.collapsed {
+    margin-left: -320px;
+}
+
+.sidebar-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-tab {
+    flex: 1;
+    padding: 1rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.sidebar-tab:hover {
+    background: var(--bg-secondary);
+}
+
+.sidebar-tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 2rem;
+    background: var(--accent-color);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 10px;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.sidebar-content.hidden {
+    display: none;
+}
+
+/* Participants Panel */
+.participant-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: background 0.3s;
+}
+
+.participant-item:hover {
+    background: var(--bg-secondary);
+}
+
+.participant-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.participant-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.participant-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.participant-status {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.participant-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.control-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn.mic-on,
+.control-btn.cam-on {
+    background: var(--success-color);
+    color: white;
+}
+
+.control-btn.mic-off,
+.control-btn.cam-off {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* Chat Panel */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 1rem;
+}
+
+.chat-message {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.chat-message.own-message {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.message-author {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.message-content {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.chat-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: border-color 0.3s;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.send-btn {
+    padding: 0 1rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.send-btn:hover {
+    background: #3a7bc8;
+}
+
+/* Content Area */
+.content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    overflow: hidden;
+}
+
+/* View Containers */
+.view-container {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+
+.view-container.active {
+    display: flex;
+}
+
+/* Video Conference View */
+.video-grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.main-video {
+    flex: 1;
+    position: relative;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.video-item {
+    position: relative;
+    background: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 150px;
+}
+
+.video-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+}
+
+.video-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.video-thumbnails {
+    display: flex;
+    gap: 1rem;
+    height: 150px;
+}
+
+.video-thumbnails .video-item {
+    flex: 1;
+}
+
+.video-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-top: 1px solid var(--border-color);
+}
+
+.video-controls .control-btn {
+    width: 50px;
+    height: 50px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.video-controls .control-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.video-controls .control-btn.end-call {
+    background: var(--accent-color);
+    color: white;
+}
+
+.video-controls .control-btn.end-call:hover {
+    background: #c0392b;
+}
+
+/* Text Editor View */
+.editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toolbar-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toolbar-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--primary-color);
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: var(--border-color);
+    margin: 0 0.25rem;
+}
+
+.font-size-select {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+}
+
+.editor-content {
+    flex: 1;
+    padding: 2rem;
+    background: white;
+    overflow-y: auto;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.editor-content:focus {
+    outline: none;
+}
+
+.editor-content h2 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.editor-status {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-item i {
+    color: var(--success-color);
+}
+
+/* Whiteboard View */
+.whiteboard-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tool-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tool-btn:hover {
+    background: var(--bg-secondary);
+}
+
+.tool-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+#colorPicker {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.stroke-width {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+}
+
+#whiteboard {
+    flex: 1;
+    background: white;
+    cursor: crosshair;
+}
+
+/* Split View */
+.split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    height: 100%;
+}
+
+.split-item {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow);
+}
+
+.split-header {
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.split-content {
+    flex: 1;
+    padding: 1rem;
+    overflow: auto;
+}
+
+.split-content.video-mini {
+    padding: 0;
+    background: #000;
+}
+
+.split-content.editor-mini {
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.files-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.file-item:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.file-item i {
+    font-size: 1.25rem;
+}
+
+/* Toggle Sidebar Button */
+.toggle-sidebar {
+    position: absolute;
+    left: 320px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 48px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    z-index: 10;
+}
+
+.toggle-sidebar:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.sidebar.collapsed ~ .toggle-sidebar {
+    left: 0;
+}
+
+.sidebar.collapsed ~ .toggle-sidebar #toggleIcon {
+    transform: rotate(180deg);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .view-btn span {
+        display: none;
+    }
+    
+    .split-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: absolute;
+        z-index: 1000;
+        height: 100%;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .header-center {
+        display: none;
+    }
+    
+    .video-thumbnails {
+        flex-direction: column;
+        height: auto;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-message {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Recording Animation */
+.recording {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        color: var(--accent-color);
+    }
+    50% {
+        color: #e74c3c80;
+    }
+    100% {
+        color: var(--accent-color);
+    }
+}
+</style>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-left">
+            <div class="logo">
+                <i class="fas fa-users"></i>
+                <span>CollabSpace</span>
+            </div>
+            <div class="room-info">
+                <span class="room-id">Room: #A3B2C1</span>
+                <button class="copy-btn" onclick="copyRoomId()">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <div class="view-toggles">
+                <button class="view-btn active" data-view="video" onclick="switchView('video')">
+                    <i class="fas fa-video"></i>
+                    <span>Video</span>
+                </button>
+                <button class="view-btn" data-view="editor" onclick="switchView('editor')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Editor</span>
+                </button>
+                <button class="view-btn" data-view="whiteboard" onclick="switchView('whiteboard')">
+                    <i class="fas fa-chalkboard"></i>
+                    <span>Whiteboard</span>
+                </button>
+                <button class="view-btn" data-view="split" onclick="switchView('split')">
+                    <i class="fas fa-th-large"></i>
+                    <span>Split View</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="btn-icon" onclick="toggleRecording()">
+                <i class="fas fa-record-vinyl" id="recordBtn"></i>
+            </button>
+            <button class="btn-icon" onclick="toggleSettings()">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="btn-leave" onclick="leaveRoom()">
+                <i class="fas fa-sign-out-alt"></i>
+                Leave
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" onclick="switchSidebarTab('participants')">
+                    <i class="fas fa-users"></i>
+                    Participants (4)
+                </button>
+                <button class="sidebar-tab" onclick="switchSidebarTab('chat')">
+                    <i class="fas fa-comments"></i>
+                    Chat
+                    <span class="notification-badge">3</span>
+                </button>
+            </div>
+            
+            <!-- Participants Panel -->
+            <div class="sidebar-content" id="participants-panel">
+                <div class="participant-item">
+                    <div class="participant-avatar">JD</div>
+                    <div class="participant-info">
+                        <span class="participant-name">John Doe (You)</span>
+                        <span class="participant-status">Host</span>
+                    </div>
+                    <div class="participant-controls">
+                        <button class="control-btn mic-on"><i class="fas fa-microphone"></i></button>
+                        <button class="control-btn cam-on"><i class="fas fa-video"></i></button>
+                    </div>
+                </div>
+                
+                <div class="participant-item">
+                    <div class="participant-avatar">AS</div>
+                    <div class="participant-info">
+                        <span class="participant-name">Alice Smith</span>
+                        <span class="participant-status">Presenter</span>
+                    </div>
+                    <div class="participant-controls">
+                        <button class="control-btn mic-off"><i class="fas fa-microphone-slash"></i></button>
+                        <button class="control-btn cam-on"><i class="fas fa-video"></i></button>
+                    </div>
+                </div>
+                
+                <div class="participant-item">
+                    <div class="participant-avatar">BJ</div>
+                    <div class="participant-info">
+                        <span class="participant-name">Bob Johnson</span>
+                        <span class="participant-status">Viewer</span>
+                    </div>
+                    <div class="participant-controls">
+                        <button class="control-btn mic-on"><i class="fas fa-microphone"></i></button>
+                        <button class="control-btn cam-off"><i class="fas fa-video-slash"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Panel -->
+            <div class="sidebar-content hidden" id="chat-panel">
+                <div class="chat-messages">
+                    <div class="chat-message">
+                        <div class="message-header">
+                            <span class="message-author">Alice Smith</span>
+                            <span class="message-time">10:30 AM</span>
+                        </div>
+                        <div class="message-content">Hey everyone! Ready to start?</div>
+                    </div>
+                    
+                    <div class="chat-message">
+                        <div class="message-header">
+                            <span class="message-author">Bob Johnson</span>
+                            <span class="message-time">10:31 AM</span>
+                        </div>
+                        <div class="message-content">Yes, let's go!</div>
+                    </div>
+                    
+                    <div class="chat-message own-message">
+                        <div class="message-header">
+                            <span class="message-author">You</span>
+                            <span class="message-time">10:32 AM</span>
+                        </div>
+                        <div class="message-content">Great! I'll share my screen.</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" placeholder="Type a message..." id="chatInput">
+                    <button class="send-btn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- Video Conference View -->
+            <div class="view-container active" id="video-view">
+                <div class="video-grid">
+                    <div class="video-item main-video">
+                        <video id="localVideo" autoplay muted></video>
+                        <div class="video-overlay">
+                            <span class="video-name">John Doe (You)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="video-thumbnails">
+                        <div class="video-item">
+                            <video autoplay></video>
+                            <div class="video-overlay">
+                                <span class="video-name">Alice Smith</span>
+                            </div>
+                        </div>
+                        <div class="video-item">
+                            <video autoplay></video>
+                            <div class="video-overlay">
+                                <span class="video-name">Bob Johnson</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Video Controls -->
+                <div class="video-controls">
+                    <button class="control-btn" onclick="toggleMic()">
+                        <i class="fas fa-microphone" id="micIcon"></i>
+                    </button>
+                    <button class="control-btn" onclick="toggleCamera()">
+                        <i class="fas fa-video" id="cameraIcon"></i>
+                    </button>
+                    <button class="control-btn" onclick="shareScreen()">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                    <button class="control-btn" onclick="raiseHand()">
+                        <i class="fas fa-hand-paper"></i>
+                    </button>
+                    <button class="control-btn end-call" onclick="endCall()">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Text Editor View -->
+            <div class="view-container" id="editor-view">
+                <div class="editor-toolbar">
+                    <button class="toolbar-btn" onclick="formatText('bold')">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="formatText('italic')">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="formatText('underline')">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                    <span class="toolbar-separator"></span>
+                    <button class="toolbar-btn" onclick="formatText('justifyLeft')">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="formatText('justifyCenter')">
+                        <i class="fas fa-align-center"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="formatText('justifyRight')">
+                        <i class="fas fa-align-right"></i>
+                    </button>
+                    <span class="toolbar-separator"></span>
+                    <button class="toolbar-btn" onclick="formatText('insertUnorderedList')">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="formatText('insertOrderedList')">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                    <span class="toolbar-separator"></span>
+                    <select class="font-size-select" onchange="changeFontSize(this.value)">
+                        <option value="3">Normal</option>
+                        <option value="1">Small</option>
+                        <option value="5">Large</option>
+                        <option value="7">Huge</option>
+                    </select>
+                </div>
+                
+                <div class="editor-content" contenteditable="true" id="textEditor">
+                    <h2>Welcome to Collaborative Editor</h2>
+                    <p>Start typing to collaborate in real-time with your team...</p>
+                </div>
+                
+                <div class="editor-status">
+                    <span class="status-item">
+                        <i class="fas fa-users"></i> 3 users editing
+                    </span>
+                    <span class="status-item">
+                        <i class="fas fa-save"></i> Auto-saved
+                    </span>
+                    <span class="status-item">
+                        Words: <span id="wordCount">10</span>
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Whiteboard View -->
+            <div class="view-container" id="whiteboard-view">
+                <div class="whiteboard-toolbar">
+                    <button class="tool-btn active" onclick="selectTool('pen')">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                    <button class="tool-btn" onclick="selectTool('eraser')">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                    <button class="tool-btn" onclick="selectTool('text')">
+                        <i class="fas fa-font"></i>
+                    </button>
+                    <button class="tool-btn" onclick="selectTool('rectangle')">
+                        <i class="fas fa-square"></i>
+                    </button>
+                    <button class="tool-btn" onclick="selectTool('circle')">
+                        <i class="fas fa-circle"></i>
+                    </button>
+                    <button class="tool-btn" onclick="selectTool('line')">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span class="toolbar-separator"></span>
+                    <input type="color" id="colorPicker" value="#000000" onchange="changeColor(this.value)">
+                    <select class="stroke-width" onchange="changeStrokeWidth(this.value)">
+                        <option value="2">Thin</option>
+                        <option value="5" selected>Medium</option>
+                        <option value="10">Thick</option>
+                    </select>
+                    <span class="toolbar-separator"></span>
+                    <button class="tool-btn" onclick="clearCanvas()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="tool-btn" onclick="downloadCanvas()">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+                
+                <canvas id="whiteboard"></canvas>
+            </div>
+            
+            <!-- Split View -->
+            <div class="view-container" id="split-view">
+                <div class="split-grid">
+                    <div class="split-item">
+                        <div class="split-header">Video Conference</div>
+                        <div class="split-content video-mini">
+                            <video autoplay muted></video>
+                        </div>
+                    </div>
+                    <div class="split-item">
+                        <div class="split-header">Text Editor</div>
+                        <div class="split-content editor-mini" contenteditable="true">
+                            Collaborative editing...
+                        </div>
+                    </div>
+                    <div class="split-item">
+                        <div class="split-header">Whiteboard</div>
+                        <div class="split-content">
+                            <canvas id="whiteboardMini"></canvas>
+                        </div>
+                    </div>
+                    <div class="split-item">
+                        <div class="split-header">Shared Files</div>
+                        <div class="split-content files-area">
+                            <div class="file-item">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Project.pdf</span>
+                            </div>
+                            <div class="file-item">
+                                <i class="fas fa-file-image"></i>
+                                <span>Design.png</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toggle Sidebar Button -->
+    <button class="toggle-sidebar" onclick="toggleSidebar()">
+        <i class="fas fa-chevron-right" id="toggleIcon"></i>
+    </button>
+    
+    <script>
+        // Global variables
+let isRecording = false;
+let isMicOn = true;
+let isCameraOn = true;
+let currentTool = 'pen';
+let currentColor = '#000000';
+let strokeWidth = 5;
+let isDrawing = false;
+let canvas, ctx;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeWhiteboard();
+    initializeVideoStream();
+    updateWordCount();
+});
+
+// View switching
+function switchView(view) {
+    // Remove active class from all views
+    document.querySelectorAll('.view-container').forEach(container => {
+        container.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to selected view
+    document.getElementById(`${view}-view`).classList.add('active');
+    
+    // Add active class to selected button
+    document.querySelector(`[data-view="${view}"]`).classList.add('active');
+    
+    // Reinitialize whiteboard if switching to whiteboard view
+    if (view === 'whiteboard') {
+        setTimeout(initializeWhiteboard, 100);
+    }
+}
+
+// Sidebar functionality
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+}
+
+function switchSidebarTab(tab) {
+    // Update tab buttons
+    document.querySelectorAll('.sidebar-tab').forEach(tabBtn => {
+        tabBtn.classList.remove('active');
+    });
+    event.target.closest('.sidebar-tab').classList.add('active');
+    
+    // Update content panels
+    if (tab === 'participants') {
+        document.getElementById('participants-panel').classList.remove('hidden');
+        document.getElementById('chat-panel').classList.add('hidden');
+    } else {
+        document.getElementById('participants-panel').classList.add('hidden');
+        document.getElementById('chat-panel').classList.remove('hidden');
+    }
+}
+
+// Video conference controls
+async function initializeVideoStream() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: true, 
+            audio: true 
+        });
+        const videoElement = document.getElementById('localVideo');
+        if (videoElement) {
+            videoElement.srcObject = stream;
+        }
+    } catch (err) {
+        console.log('Error accessing media devices:', err);
+    }
+}
+
+function toggleMic() {
+    isMicOn = !isMicOn;
+    const micIcon = document.getElementById('micIcon');
+    
+    if (isMicOn) {
+        micIcon.className = 'fas fa-microphone';
+    } else {
+        micIcon.className = 'fas fa-microphone-slash';
+    }
+    
+    // Toggle actual microphone stream here
+}
+
+function toggleCamera() {
+    isCameraOn = !isCameraOn;
+    const cameraIcon = document.getElementById('cameraIcon');
+    
+    if (isCameraOn) {
+        cameraIcon.className = 'fas fa-video';
+    } else {
+        cameraIcon.className = 'fas fa-video-slash';
+    }
+    
+    // Toggle actual camera stream here
+}
+
+function shareScreen() {
+    navigator.mediaDevices.getDisplayMedia({ video: true })
+        .then(stream => {
+            console.log('Screen sharing started');
+            // Handle screen share stream
+        })
+        .catch(err => {
+            console.log('Error sharing screen:', err);
+        });
+}
+
+function raiseHand() {
+    alert('Hand raised! The host has been notified.');
+}
+
+function endCall() {
+    if (confirm('Are you sure you want to end the call?')) {
+        window.location.reload();
+    }
+}
+
+// Recording functionality
+function toggleRecording() {
+    isRecording = !isRecording;
+    const recordBtn = document.getElementById('recordBtn');
+    
+    if (isRecording) {
+        recordBtn.classList.add('recording');
+        alert('Recording started');
+    } else {
+        recordBtn.classList.remove('recording');
+        alert('Recording stopped');
+    }
+}
+
+// Chat functionality
+function sendMessage() {
+    const chatInput = document.getElementById('chatInput');
+    const message = chatInput.value.trim();
+    
+    if (message) {
+        const chatMessages = document.querySelector('.chat-messages');
+        const messageElement = document.createElement('div');
+        messageElement.className = 'chat-message own-message';
+        
+        const time = new Date().toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        messageElement.innerHTML = `
+            <div class="message-header">
+                <span class="message-author">You</span>
+                <span class="message-time">${time}</span>
+            </div>
+            <div class="message-content">${message}</div>
+        `;
+        
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        chatInput.value = '';
+    }
+}
+
+// Enter key to send message
+document.addEventListener('keypress', function(e) {
+    if (e.target.id === 'chatInput' && e.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+// Text editor functionality
+function formatText(command) {
+    document.execCommand(command, false, null);
+    document.getElementById('textEditor').focus();
+}
+
+function changeFontSize(size) {
+    document.execCommand('fontSize', false, size);
+    document.getElementById('textEditor').focus();
+}
+
+function updateWordCount() {
+    const editor = document.getElementById('textEditor');
+    if (editor) {
+        editor.addEventListener('input', function() {
+            const text = editor.innerText || editor.textContent;
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            document.getElementById('wordCount').textContent = words.length;
+        });
+    }
+}
+
+// Whiteboard functionality
+function initializeWhiteboard() {
+    canvas = document.getElementById('whiteboard');
+    if (!canvas) return;
+    
+    ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    
+    // Set initial styles
+    ctx.strokeStyle = currentColor;
+    ctx.lineWidth = strokeWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    // Mouse events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    // Touch events for mobile
+    canvas.addEventListener('touchstart', handleTouch);
+    canvas.addEventListener('touchmove', handleTouch);
+    canvas.addEventListener('touchend', stopDrawing);
+}
+
+function startDrawing(e) {
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    
+    if (currentTool === 'pen') {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = strokeWidth;
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+    } else if (currentTool === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = strokeWidth * 2;
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+    }
+}
+
+function stopDrawing() {
+    if (isDrawing) {
+        isDrawing = false;
+        ctx.beginPath();
+    }
+}
+
+function handleTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                     e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    canvas.dispatchEvent(mouseEvent);
+}
+
+function selectTool(tool) {
+    currentTool = tool;
+    
+    // Update active tool button
+    document.querySelectorAll('.tool-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.closest('.tool-btn').classList.add('active');
+    
+    // Update cursor
+    if (tool === 'eraser') {
+        canvas.style.cursor = 'grab';
+    } else {
+        canvas.style.cursor = 'crosshair';
+    }
+}
+
+function changeColor(color) {
+    currentColor = color;
+    ctx.strokeStyle = color;
+}
+
+function changeStrokeWidth(width) {
+    strokeWidth = parseInt(width);
+    ctx.lineWidth = strokeWidth;
+}
+
+function clearCanvas() {
+    if (confirm('Are you sure you want to clear the whiteboard?')) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
+function downloadCanvas() {
+    const link = document.createElement('a');
+    link.download = 'whiteboard.png';
+    link.href = canvas.toDataURL();
+    link.click();
+}
+
+// Room functions
+function copyRoomId() {
+    const roomId = document.querySelector('.room-id').textContent;
+    navigator.clipboard.writeText(roomId).then(() => {
+        alert('Room ID copied to clipboard!');
+    });
+}
+
+function leaveRoom() {
+    if (confirm('Are you sure you want to leave the room?')) {
+        window.location.href = '/';
+    }
+}
+
+function toggleSettings() {
+    alert('Settings panel would open here');
+}
+
+// Initialize mini whiteboard for split view
+window.addEventListener('resize', function() {
+    if (canvas) {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+    }
+});
+    </script>
+</body>
+</html>
