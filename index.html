@@ -48,6 +48,7 @@ body {
     align-items: center;
     box-shadow: var(--shadow);
     z-index: 100;
+    position: relative;
 }
 
 .header-left {
@@ -67,6 +68,10 @@ body {
 
 .logo i {
     font-size: 1.5rem;
+}
+
+.logo span {
+    display: inline-block;
 }
 
 .room-info {
@@ -187,6 +192,16 @@ body {
     transform: translateY(-2px);
 }
 
+/* Mobile menu button */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
 /* Main Container */
 .main-container {
     display: flex;
@@ -201,11 +216,13 @@ body {
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    transition: margin-left 0.3s;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 50;
 }
 
 .sidebar.collapsed {
-    margin-left: -320px;
+    transform: translateX(-100%);
 }
 
 .sidebar-tabs {
@@ -285,17 +302,22 @@ body {
     justify-content: center;
     font-weight: bold;
     font-size: 0.875rem;
+    flex-shrink: 0;
 }
 
 .participant-info {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .participant-name {
     font-weight: 500;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .participant-status {
@@ -306,6 +328,7 @@ body {
 .participant-controls {
     display: flex;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .control-btn {
@@ -370,6 +393,7 @@ body {
 .message-content {
     font-size: 0.9rem;
     line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .chat-input-container {
@@ -490,6 +514,7 @@ body {
     padding: 1.5rem;
     background: white;
     border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
 }
 
 .video-controls .control-btn {
@@ -521,6 +546,7 @@ body {
     padding: 1rem;
     background: white;
     border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
 }
 
 .toolbar-btn {
@@ -583,6 +609,7 @@ body {
     border-top: 1px solid var(--border-color);
     font-size: 0.875rem;
     color: var(--text-secondary);
+    flex-wrap: wrap;
 }
 
 .status-item {
@@ -603,6 +630,7 @@ body {
     padding: 1rem;
     background: white;
     border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
 }
 
 .tool-btn {
@@ -648,6 +676,7 @@ body {
     flex: 1;
     background: white;
     cursor: crosshair;
+    touch-action: none;
 }
 
 /* Split View */
@@ -753,7 +782,25 @@ body {
     transform: rotate(180deg);
 }
 
+/* Mobile overlay */
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+}
+
+.mobile-overlay.active {
+    display: block;
+}
+
 /* Responsive Design */
+
+/* Tablet - Large (1024px) */
 @media (max-width: 1024px) {
     .view-btn span {
         display: none;
@@ -761,25 +808,286 @@ body {
     
     .split-grid {
         grid-template-columns: 1fr;
-        grid-template-rows: repeat(4, 1fr);
+        grid-template-rows: repeat(4, minmax(250px, 1fr));
+        overflow-y: auto;
+    }
+    
+    .editor-content {
+        padding: 1.5rem;
+    }
+    
+    .video-thumbnails {
+        height: 120px;
+    }
+    
+    .sidebar {
+        width: 280px;
+    }
+    
+    .toggle-sidebar {
+        left: 280px;
     }
 }
 
+/* Tablet - Medium (768px) */
 @media (max-width: 768px) {
-    .sidebar {
-        position: absolute;
-        z-index: 1000;
-        height: 100%;
-        box-shadow: var(--shadow-lg);
+    .main-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .header-left {
+        gap: 1rem;
+    }
+    
+    .logo span {
+        display: none;
+    }
+    
+    .room-info {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
     }
     
     .header-center {
         display: none;
     }
     
+    .btn-leave span {
+        display: none;
+    }
+    
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 85%;
+        max-width: 320px;
+        height: 100vh;
+        z-index: 1000;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .toggle-sidebar {
+        display: none;
+    }
+    
+    .video-grid {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+    
     .video-thumbnails {
         flex-direction: column;
         height: auto;
+        gap: 0.5rem;
+    }
+    
+    .video-thumbnails .video-item {
+        height: 120px;
+    }
+    
+    .split-grid {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+    
+    .editor-toolbar {
+        padding: 0.75rem;
+        gap: 0.25rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .toolbar-separator {
+        margin: 0 0.125rem;
+    }
+    
+    .whiteboard-toolbar {
+        padding: 0.75rem;
+        gap: 0.25rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Mobile - Large (640px) */
+@media (max-width: 640px) {
+    .header-right {
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .video-controls {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+    
+    .video-controls .control-btn {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .editor-content {
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .editor-status {
+        gap: 1rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Mobile - Small (480px) */
+@media (max-width: 480px) {
+    .main-header {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .header-left {
+        gap: 0.5rem;
+    }
+    
+    .room-info {
+        display: none;
+    }
+    
+    .btn-leave {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .sidebar {
+        width: 90%;
+    }
+    
+    .sidebar-tab {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .participant-item {
+        padding: 0.5rem;
+        gap: 0.75rem;
+    }
+    
+    .participant-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 0.75rem;
+    }
+    
+    .control-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.875rem;
+    }
+    
+    .chat-input-container {
+        gap: 0.25rem;
+    }
+    
+    .chat-input {
+        padding: 0.6rem;
+        font-size: 0.875rem;
+    }
+    
+    .send-btn {
+        padding: 0 0.75rem;
+    }
+    
+    .main-video {
+        border-radius: 8px;
+    }
+    
+    .video-item {
+        min-height: 100px;
+        border-radius: 8px;
+    }
+    
+    .split-grid {
+        grid-template-rows: repeat(4, minmax(200px, 1fr));
+    }
+    
+    .split-item {
+        border-radius: 8px;
+    }
+    
+    .toolbar-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.875rem;
+    }
+    
+    .tool-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.875rem;
+    }
+}
+
+/* Mobile - Extra Small (360px) */
+@media (max-width: 360px) {
+    .logo i {
+        font-size: 1.25rem;
+    }
+    
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.875rem;
+    }
+    
+    .video-controls .control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 0.875rem;
+    }
+    
+    .participant-controls {
+        gap: 0.25rem;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .btn-icon,
+    .control-btn,
+    .toolbar-btn,
+    .tool-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .chat-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+    .main-header {
+        padding: 0.5rem 1rem;
+    }
+    
+    .video-controls {
+        padding: 0.75rem;
+    }
+    
+    .video-grid {
+        gap: 0.5rem;
+    }
+    
+    .video-thumbnails {
+        height: 100px;
     }
 }
 
@@ -795,8 +1103,21 @@ body {
     }
 }
 
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
 .chat-message {
     animation: fadeIn 0.3s ease;
+}
+
+.sidebar {
+    animation: slideIn 0.3s ease;
 }
 
 /* Recording Animation */
@@ -815,10 +1136,50 @@ body {
         color: var(--accent-color);
     }
 }
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    :root {
+        --primary-color: #0066cc;
+        --accent-color: #cc0000;
+        --text-primary: #000000;
+        --text-secondary: #666666;
+        --border-color: #000000;
+    }
+}
+
+/* Print styles */
+@media print {
+    .main-header,
+    .sidebar,
+    .video-controls,
+    .editor-toolbar,
+    .whiteboard-toolbar {
+        display: none;
+    }
+    
+    .content-area {
+        margin: 0;
+        padding: 0;
+    }
+}
 </style>
 <body>
     <!-- Header -->
     <header class="main-header">
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
         <div class="header-left">
             <div class="logo">
                 <i class="fas fa-users"></i>
@@ -862,15 +1223,18 @@ body {
             </button>
             <button class="btn-leave" onclick="leaveRoom()">
                 <i class="fas fa-sign-out-alt"></i>
-                Leave
+                <span>Leave</span>
             </button>
         </div>
     </header>
 
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" onclick="closeMobileMenu()"></div>
+
     <!-- Main Container -->
     <div class="main-container">
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar collapsed" id="sidebar">
             <div class="sidebar-tabs">
                 <button class="sidebar-tab active" onclick="switchSidebarTab('participants')">
                     <i class="fas fa-users"></i>
@@ -965,7 +1329,7 @@ body {
             <div class="view-container active" id="video-view">
                 <div class="video-grid">
                     <div class="video-item main-video">
-                        <video id="localVideo" autoplay muted></video>
+                        <video id="localVideo" autoplay muted playsinline></video>
                         <div class="video-overlay">
                             <span class="video-name">John Doe (You)</span>
                         </div>
@@ -973,13 +1337,13 @@ body {
                     
                     <div class="video-thumbnails">
                         <div class="video-item">
-                            <video autoplay></video>
+                            <video autoplay playsinline></video>
                             <div class="video-overlay">
                                 <span class="video-name">Alice Smith</span>
                             </div>
                         </div>
                         <div class="video-item">
-                            <video autoplay></video>
+                            <video autoplay playsinline></video>
                             <div class="video-overlay">
                                 <span class="video-name">Bob Johnson</span>
                             </div>
@@ -1109,7 +1473,7 @@ body {
                     <div class="split-item">
                         <div class="split-header">Video Conference</div>
                         <div class="split-content video-mini">
-                            <video autoplay muted></video>
+                            <video autoplay muted playsinline></video>
                         </div>
                     </div>
                     <div class="split-item">
@@ -1157,13 +1521,44 @@ let currentColor = '#000000';
 let strokeWidth = 5;
 let isDrawing = false;
 let canvas, ctx;
+let isMobile = window.matchMedia("(max-width: 768px)").matches;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeWhiteboard();
     initializeVideoStream();
     updateWordCount();
+    handleResponsive();
 });
+
+// Handle responsive behavior
+function handleResponsive() {
+    window.addEventListener('resize', () => {
+        isMobile = window.matchMedia("(max-width: 768px)").matches;
+        
+        // Reinitialize canvas on resize
+        if (document.getElementById('whiteboard-view').classList.contains('active')) {
+            initializeWhiteboard();
+        }
+    });
+}
+
+// Mobile menu functionality
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.mobile-overlay');
+    
+    sidebar.classList.toggle('collapsed');
+    overlay.classList.toggle('active');
+}
+
+function closeMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.mobile-overlay');
+    
+    sidebar.classList.add('collapsed');
+    overlay.classList.remove('active');
+}
 
 // View switching
 function switchView(view) {
@@ -1186,6 +1581,11 @@ function switchView(view) {
     // Reinitialize whiteboard if switching to whiteboard view
     if (view === 'whiteboard') {
         setTimeout(initializeWhiteboard, 100);
+    }
+    
+    // Close mobile menu if open
+    if (isMobile) {
+        closeMobileMenu();
     }
 }
 
@@ -1210,32 +1610,50 @@ function switchSidebarTab(tab) {
         document.getElementById('participants-panel').classList.add('hidden');
         document.getElementById('chat-panel').classList.remove('hidden');
     }
+    
+    // Clear notification badge when switching to chat
+    if (tab === 'chat') {
+        const badge = event.target.closest('.sidebar-tab').querySelector('.notification-badge');
+        if (badge) {
+            badge.style.display = 'none';
+        }
+    }
 }
 
 // Video conference controls
 async function initializeVideoStream() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: true, 
-            audio: true 
-        });
+        const constraints = {
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                facingMode: 'user'
+            },
+            audio: true
+        };
+        
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         const videoElement = document.getElementById('localVideo');
         if (videoElement) {
             videoElement.srcObject = stream;
         }
     } catch (err) {
         console.log('Error accessing media devices:', err);
+        // Show fallback UI or message
     }
 }
 
 function toggleMic() {
     isMicOn = !isMicOn;
     const micIcon = document.getElementById('micIcon');
+    const micBtn = micIcon.parentElement;
     
     if (isMicOn) {
         micIcon.className = 'fas fa-microphone';
+        micBtn.classList.remove('muted');
     } else {
         micIcon.className = 'fas fa-microphone-slash';
+        micBtn.classList.add('muted');
     }
     
     // Toggle actual microphone stream here
@@ -1244,25 +1662,33 @@ function toggleMic() {
 function toggleCamera() {
     isCameraOn = !isCameraOn;
     const cameraIcon = document.getElementById('cameraIcon');
+    const cameraBtn = cameraIcon.parentElement;
     
     if (isCameraOn) {
         cameraIcon.className = 'fas fa-video';
+        cameraBtn.classList.remove('muted');
     } else {
         cameraIcon.className = 'fas fa-video-slash';
+        cameraBtn.classList.add('muted');
     }
     
     // Toggle actual camera stream here
 }
 
 function shareScreen() {
-    navigator.mediaDevices.getDisplayMedia({ video: true })
-        .then(stream => {
-            console.log('Screen sharing started');
-            // Handle screen share stream
-        })
-        .catch(err => {
-            console.log('Error sharing screen:', err);
-        });
+    if (navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia({ video: true })
+            .then(stream => {
+                console.log('Screen sharing started');
+                // Handle screen share stream
+            })
+            .catch(err => {
+                console.log('Error sharing screen:', err);
+                alert('Screen sharing is not supported or was cancelled.');
+            });
+    } else {
+        alert('Screen sharing is not supported in this browser.');
+    }
 }
 
 function raiseHand() {
@@ -1282,10 +1708,10 @@ function toggleRecording() {
     
     if (isRecording) {
         recordBtn.classList.add('recording');
-        alert('Recording started');
+        showNotification('Recording started');
     } else {
         recordBtn.classList.remove('recording');
-        alert('Recording stopped');
+        showNotification('Recording stopped');
     }
 }
 
@@ -1309,7 +1735,7 @@ function sendMessage() {
                 <span class="message-author">You</span>
                 <span class="message-time">${time}</span>
             </div>
-            <div class="message-content">${message}</div>
+            <div class="message-content">${escapeHtml(message)}</div>
         `;
         
         chatMessages.appendChild(messageElement);
@@ -1318,9 +1744,22 @@ function sendMessage() {
     }
 }
 
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
 // Enter key to send message
 document.addEventListener('keypress', function(e) {
-    if (e.target.id === 'chatInput' && e.key === 'Enter') {
+    if (e.target.id === 'chatInput' && e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
         sendMessage();
     }
 });
@@ -1339,11 +1778,17 @@ function changeFontSize(size) {
 function updateWordCount() {
     const editor = document.getElementById('textEditor');
     if (editor) {
-        editor.addEventListener('input', function() {
+        const updateCount = () => {
             const text = editor.innerText || editor.textContent;
             const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-            document.getElementById('wordCount').textContent = words.length;
-        });
+            const wordCountElement = document.getElementById('wordCount');
+            if (wordCountElement) {
+                wordCountElement.textContent = words.length;
+            }
+        };
+        
+        editor.addEventListener('input', updateCount);
+        updateCount();
     }
 }
 
@@ -1355,14 +1800,24 @@ function initializeWhiteboard() {
     ctx = canvas.getContext('2d');
     
     // Set canvas size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    const container = canvas.parentElement;
+    canvas.width = container.offsetWidth;
+    canvas.height = container.offsetHeight;
     
     // Set initial styles
     ctx.strokeStyle = currentColor;
     ctx.lineWidth = strokeWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    
+    // Remove existing event listeners
+    canvas.removeEventListener('mousedown', startDrawing);
+    canvas.removeEventListener('mousemove', draw);
+    canvas.removeEventListener('mouseup', stopDrawing);
+    canvas.removeEventListener('mouseout', stopDrawing);
+    canvas.removeEventListener('touchstart', handleTouch);
+    canvas.removeEventListener('touchmove', handleTouch);
+    canvas.removeEventListener('touchend', stopDrawing);
     
     // Mouse events
     canvas.addEventListener('mousedown', startDrawing);
@@ -1379,25 +1834,30 @@ function initializeWhiteboard() {
 function startDrawing(e) {
     isDrawing = true;
     const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
     ctx.beginPath();
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.moveTo(x, y);
 }
 
 function draw(e) {
     if (!isDrawing) return;
     
     const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     
     if (currentTool === 'pen') {
         ctx.globalCompositeOperation = 'source-over';
         ctx.strokeStyle = currentColor;
         ctx.lineWidth = strokeWidth;
-        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.lineTo(x, y);
         ctx.stroke();
     } else if (currentTool === 'eraser') {
         ctx.globalCompositeOperation = 'destination-out';
         ctx.lineWidth = strokeWidth * 2;
-        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.lineTo(x, y);
         ctx.stroke();
     }
 }
@@ -1412,11 +1872,14 @@ function stopDrawing() {
 function handleTouch(e) {
     e.preventDefault();
     const touch = e.touches[0];
-    const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
-                                     e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
-        clientX: touch.clientX,
-        clientY: touch.clientY
-    });
+    const mouseEvent = new MouseEvent(
+        e.type === 'touchstart' ? 'mousedown' : 
+        e.type === 'touchmove' ? 'mousemove' : 'mouseup', 
+        {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        }
+    );
     canvas.dispatchEvent(mouseEvent);
 }
 
@@ -1463,9 +1926,35 @@ function downloadCanvas() {
 // Room functions
 function copyRoomId() {
     const roomId = document.querySelector('.room-id').textContent;
-    navigator.clipboard.writeText(roomId).then(() => {
-        alert('Room ID copied to clipboard!');
-    });
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(roomId).then(() => {
+            showNotification('Room ID copied to clipboard!');
+        }).catch(() => {
+            fallbackCopyToClipboard(roomId);
+        });
+    } else {
+        fallbackCopyToClipboard(roomId);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showNotification('Room ID copied to clipboard!');
+    } catch (err) {
+        showNotification('Failed to copy room ID');
+    }
+    
+    document.body.removeChild(textArea);
 }
 
 function leaveRoom() {
@@ -1475,15 +1964,54 @@ function leaveRoom() {
 }
 
 function toggleSettings() {
-    alert('Settings panel would open here');
+    showNotification('Settings panel would open here');
+}
+
+// Notification system
+function showNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg-dark);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: var(--shadow-lg);
+        z-index: 9999;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
 }
 
 // Initialize mini whiteboard for split view
 window.addEventListener('resize', function() {
-    if (canvas) {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
+    if (canvas && document.getElementById('whiteboard-view').classList.contains('active')) {
+        initializeWhiteboard();
     }
+});
+
+// Handle orientation change
+window.addEventListener('orientationchange', function() {
+    setTimeout(() => {
+        if (canvas && document.getElementById('whiteboard-view').classList.contains('active')) {
+            initializeWhiteboard();
+        }
+    }, 100);
 });
     </script>
 </body>
